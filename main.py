@@ -3,21 +3,34 @@ import numpy as np
 
 __author__ = 'John Bucknam & Bill Clark'
 
-X = np.matrix([1, 1, 1, 1, 1,
+# Practice Inputs
+X = np.matrix([[1, 1, 1, 1, 1,
                1, 0, 0, 0, 0,
                1, 0, 0, 0, 0,
                1, 1, 1, 1, 1,
                1, 0, 0, 0, 1,
                1, 0, 0, 0, 1,
-               1, 1, 1, 1, 1])
-y = np.matrix([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0])
+               1, 1, 1, 1, 1],
+              [1, 1, 1, 1, 1,
+               1, 0, 0, 0, 0,
+               1, 0, 0, 0, 0,
+               1, 1, 1, 1, 0,
+               0, 0, 0, 0, 1,
+               0, 0, 0, 0, 1,
+               1, 1, 1, 1, 0]])
+
+# Practice Outputs
+y = np.matrix([[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]])
 
 class NeuralNetwork(object):
     def __init__(self, layer_sizes):
+        # Define each layer
         self.inputLayerSize = layer_sizes[0]
         self.outputLayerSize = layer_sizes[len(layer_sizes) - 1]
         self.hiddenLayerSizes = layer_sizes[1:len(layer_sizes) - 1]
 
+        # Set each weight depending on the number of each layer being paired
         self.W = []
         if len(self.hiddenLayerSizes) != 0:
             self.W.append(np.matrix(np.random.randn(self.inputLayerSize, self.hiddenLayerSizes[0])))
@@ -28,22 +41,30 @@ class NeuralNetwork(object):
             self.W.append(np.matrix(np.random.randn(self.inputLayerSize, self.outputLayerSize)))
 
     def forward(self, input_matrix):
+        # Z are variables taken from the matrix multiplication of inputs of a node in a layer
         self.z = []
+        # A are variables taken from inserting the Z variable into the sigmoid function
         self.a = []
+
+        # Append each Z value matrix
         self.z.append(np.dot(input_matrix, self.W[0]))
         for i in range(len(self.W) - 1):
+            # Append each A value from the sigmoid(Z)
             self.a.append(self.sigmoid(self.z[i]))
             self.z.append(np.dot(self.a[i], self.W[i+1]))
         y_hat = self.sigmoid(self.z[len(self.z) - 1])
         return y_hat
 
+    # Static Sigmoid Function
     @staticmethod
     def sigmoid(z):
         return 1/(1+np.exp(-z))
 
+    # Sigmoid Prime (will provide proof from reference)
     def sigmoid_prime(self, z):
         return self.sigmoid(z)*(1 - self.sigmoid(z))
 
+    # Obtains the different weights in a 1-D matrix
     def get_params(self):
         params = None
         for i in range(len(self.W)):
@@ -53,7 +74,7 @@ class NeuralNetwork(object):
                 params = np.concatenate((params.ravel(), self.W[i].ravel()), axis=1)
         return params
 
-
+# Unfinished Trainer Class
 class Trainer(object):
     def __init__(self, N):
         self.N = N
@@ -72,5 +93,6 @@ class Trainer(object):
         # Parameters of weights from the Neural Network
         params = self.N.getParams()
 
+# SCRIPT
 NN = NeuralNetwork((35, 15, 10))
 print(NN.forward(X))
