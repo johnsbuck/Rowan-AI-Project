@@ -20,8 +20,8 @@ X = np.matrix([[1, 1, 1, 1, 1,
                1, 1, 1, 1, 0]])
 
 # Practice Outputs
-y = np.matrix([[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]])
+y = np.matrix([[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+               [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]])
 
 class NeuralNetwork(object):
     def __init__(self, layer_sizes):
@@ -67,7 +67,15 @@ class NeuralNetwork(object):
     # Sum of Squares Error Cost Function
     def cost_function(self, X, y):
         y_hat = self.forward(X)
-        return np.sum(y - y_hat)**2
+        return .5 * np.sum(y - y_hat)**2
+
+    def cost_function_prime(self, X, y):
+        # Defines output as well as sum of weighted inputs (z) and the threshold output (a)
+        y_hat = self.forward(X);
+        delta = []
+
+        delta.append(np.multiply(-(y-y_hat)), )
+
 
     # Obtains the different weights in a 1-D matrix
     def get_params(self):
@@ -79,9 +87,9 @@ class NeuralNetwork(object):
                 params = np.concatenate((params.ravel(), self.W[i].ravel()), axis=1)
         return params
 
-	#all the comments.
-	def setParams(self, params):
-        #Set W1 and W2 using single paramater vector.
+    # all the comments.
+    def setParams(self, params):
+        # Set W1 and W2 using single paramater vector.
         hiddenStart = 0
         hiddenEnd = self.hiddenLayerSizes[0] * self.inputLayerSize
         self.W[0] = np.reshape(params[hiddenStart:hiddenEnd], (self.inputLayerSizes, self.hiddenLayerSizes[0]))
@@ -91,7 +99,7 @@ class NeuralNetwork(object):
             hiddenEnd = self.hiddenLayerSizes[layer] * self.inputLayerSizes[layer-1]
             self.W[layer] = np.reshape(params[hiddenStart:hiddenEnd],
                                        (self.hiddenLayerSizes[layer-1],self.hiddenLayerSizes[layer]))
-	    hiddenStart = hiddenEnd+1
+        hiddenStart = hiddenEnd+1
         hiddenEnd = self.hiddenLayerSizes[len(self.hiddenLayerSizes)-1] * self.outputLayerSize
         self.W[len(W)-1] = np.reshape(params[hiddenStart:hiddenEnd],
                                    (self.hiddenLayerSizes[len(self.hiddenLayerSizes)-1], self.outputLayerSize))
@@ -114,6 +122,7 @@ class Trainer(object):
 
         # Parameters of weights from the Neural Network
         params = self.N.getParams()
+        self.N.setParams(params)
 
 # SCRIPT
 NN = NeuralNetwork((35, 15, 10))
