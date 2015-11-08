@@ -74,6 +74,23 @@ class NeuralNetwork(object):
                 params = np.concatenate((params.ravel(), self.W[i].ravel()), axis=1)
         return params
 
+
+	def setParams(self, params):
+        #Set W1 and W2 using single paramater vector.
+        hiddenStart = 0
+        hiddenEnd = self.hiddenLayerSizes[0] * self.inputLayerSize
+        self.W[0] = np.reshape(params[hiddenStart:hiddenEnd], (self.inputLayerSizes, self.hiddenLayerSizes[0]))
+
+        for layer in range(1,self.hiddenLayerSizes):
+            hiddenStart = hiddenEnd+1
+            hiddenEnd = self.hiddenLayerSizes[layer] * self.inputLayerSizes[layer-1]
+            self.W[layer] = np.reshape(params[hiddenStart:hiddenEnd],
+                                       (self.hiddenLayerSizes[layer-1],self.hiddenLayerSizes[layer]))
+	    hiddenStart = hiddenEnd+1
+        hiddenEnd = self.hiddenLayerSizes[len(self.hiddenLayerSizes)-1] * self.outputLayerSize
+        self.W[len(W)-1] = np.reshape(params[hiddenStart:hiddenEnd],
+                                   (self.hiddenLayerSizes[len(self.hiddenLayerSizes)-1], self.outputLayerSize))
+
 # Unfinished Trainer Class
 class Trainer(object):
     def __init__(self, N):
