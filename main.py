@@ -79,7 +79,7 @@ class NeuralNetwork(object):
                 params = np.concatenate((params.ravel(), self.W[i].ravel()), axis=1)
         return params
 
-
+	#all the comments.
 	def setParams(self, params):
         #Set W1 and W2 using single paramater vector.
         hiddenStart = 0
