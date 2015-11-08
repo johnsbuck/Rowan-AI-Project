@@ -20,8 +20,8 @@ X = np.matrix([[1, 1, 1, 1, 1,
                1, 1, 1, 1, 0]])
 
 # Practice Outputs
-y = np.matrix([[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]])
+y = np.matrix([[0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+               [0, 0, 0, 0, 1, 0, 0, 0, 0, 0]])
 
 class NeuralNetwork(object):
     def __init__(self, layer_sizes):
@@ -64,6 +64,11 @@ class NeuralNetwork(object):
     def sigmoid_prime(self, z):
         return self.sigmoid(z)*(1 - self.sigmoid(z))
 
+    # Sum of Squares Error Cost Function
+    def cost_function(self, X, y):
+        y_hat = self.forward(X)
+        return np.sum(y - y_hat)**2
+
     # Obtains the different weights in a 1-D matrix
     def get_params(self):
         params = None
@@ -94,5 +99,5 @@ class Trainer(object):
         params = self.N.getParams()
 
 # SCRIPT
-NN = NeuralNetwork((35, 15, 10))
-print(NN.forward(X))
+NN = NeuralNetwork((35, 20, 15, 10))
+print(NN.cost_function(X, y))
