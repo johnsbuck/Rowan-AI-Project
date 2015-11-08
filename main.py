@@ -64,6 +64,11 @@ class NeuralNetwork(object):
     def sigmoid_prime(self, z):
         return self.sigmoid(z)*(1 - self.sigmoid(z))
 
+    # Sum of Squares Error Cost Function
+    def cost_function(self, X, y):
+        y_hat = self.forward(X)
+        return np.sum(y - y_hat)**2
+
     # Obtains the different weights in a 1-D matrix
     def get_params(self):
         params = None
