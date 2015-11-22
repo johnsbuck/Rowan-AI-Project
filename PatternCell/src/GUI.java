@@ -130,7 +130,7 @@ public class GUI
       });
     }
 
-    public float getValue() {
+        public float getValue() {
       if(getBackground().getBlue() == 0) {
         return 0.5f;
       }
