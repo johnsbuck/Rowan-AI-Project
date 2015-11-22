@@ -4,7 +4,7 @@ from scipy import optimize
 __author__ = 'John Bucknam & Bill Clark'
 
 # Practice Inputs
-x = np.matrix([[1, 1, 1, 1, 1,
+X = np.array([[1, 1, 1, 1, 1,
                 1, 0, 0, 0, 1,
                 1, 0, 0, 0, 1,
                 1, 1, 1, 1, 1,
@@ -143,10 +143,17 @@ x = np.matrix([[1, 1, 1, 1, 1,
                 1, 0, 0, 0, 1,
                 1, 0, 0, 0, 1,
                 1, 0, 0, 0, 1,
-                1, 1, 1, 1, 1]])
+                1, 1, 1, 1, 1],
+               [1, 1, 1, 1, 1,
+                0, 0, 0, 1, 0,
+                0, 0, 1, 0, 0,
+                0, 0, 0, 1, 0,
+                0, 0, 0, 0, 1,
+                1, 0, 0, 1, 0,
+                0, 1, 1, 0, 0]])
 
 # Practice Outputs
-y = np.matrix([[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+Y = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
                [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
@@ -165,13 +172,25 @@ y = np.matrix([[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-               [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-'''
-y = np.matrix([[0.9],[0.9], [0.8], [0.8], [0.7], [0.7], [0.6], [0.6], [0.5], [0.5],
-               [0.4], [0.4], [0.3], [0.3], [0.2], [0.2], [0.1], [0.1], [0.0], [0.0]])
-'''
+               [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]])
+
+# Y = np.matrix([[0.9],[0.9], [0.8], [0.8], [0.7], [0.7], [0.6], [0.6], [0.5], [0.5],
+#               [0.4], [0.4], [0.3], [0.3], [0.2], [0.2], [0.1], [0.1], [0.0], [0.0]])
+
 class NeuralNetwork(object):
+    """A feedforward neural network that capable of regression or classification.
+
+    Requires Numpy to run and takes in ndmatrix inputs.
+
+    """
     def __init__(self, layer_sizes):
+        """Constructor
+
+        Params:
+            tuple: Floats; First element is the input layer, last element is the output layer,
+            and every other layer acts as an input layer
+        """
         # Define each layer
         self.inputLayerSize = layer_sizes[0]
         self.outputLayerSize = layer_sizes[len(layer_sizes) - 1]
@@ -196,6 +215,11 @@ class NeuralNetwork(object):
             self.weight.append(np.matrix(np.random.randn(self.inputLayerSize, self.outputLayerSize)))
 
     def forward(self, input_matrix):
+        """Feeds the input forward through the neural network
+
+        Returns:
+             ndarray: Output of our inputted matrix that is [n, 10] (n being the # of inputs)
+        """
         # Values taken from each set of weights * input summed together
         self.inputSum = []
         # The inputSums inserted into the threshold function (sigmoid)
@@ -210,32 +234,109 @@ class NeuralNetwork(object):
         y_hat = self.sigmoid(self.inputSum[len(self.inputSum) - 1])
         return y_hat
 
-    # Static Sigmoid Function
     @staticmethod
     def sigmoid(z):
-        return 1 / (1 + np.exp(-z))
+        """Static Sigmoid Function
 
-    # Sigmoid Derivative Function
+        Params:
+            ndarray: floats
+
+        Returns:
+            ndarray: floats
+        """
+        return 1 / (1 + np.exp(-(z.clip(-100, 100))))
+
     def sigmoid_prime(self, z):
+        """Derivative of the Sigmoid Function
+
+        Params:
+            ndarray: floats
+
+        Returns:
+            ndarray: floats
+        """
         return np.multiply(self.sigmoid(z), (1 - self.sigmoid(z)))
 
-    # Static TanH Function
     @staticmethod
     def tanh(z):
+        """Static Tanh Function
+
+        Params:
+            ndarray: floats
+
+        Returns:
+            ndarray: floats
+        """
         return np.tanh(z)
 
-    # Static TanH Derivative Function
     @staticmethod
     def tanh_prime(z):
-        return ((2 * np.cosh(z))/(np.cosh(2 * z) + 1)) ** 2
+        """Static Tanh Derivative Function
 
-    # Cross Entropy Error Function
+        Params:
+            ndarray: floats
+
+        Returns:
+            ndarray: floats
+        """
+        return np.multiply(((2 * np.cosh(z))/(np.cosh(2 * z) + 1)), ((2 * np.cosh(z))/(np.cosh(2 * z) + 1)))
+
     def cost_function(self, x, y):
+        """The cost function that compares the expected output with the actual output for training
+
+        Params:
+            ndarray: Input; Should match [n, InputLayerSize] where n is the number of inputs >= to 1.
+            ndarray: Output; Should match [n, OutputLayerSize] where n is the number of outputs >= to 1.
+
+            The n value for input and output should be the same.
+
+        Returns:
+            None: If invalid training data
+            float: Cost of the training data
+        """
         y_hat = self.forward(x)
-        return -1 * np.sum(np.multiply(y, np.log(y_hat)) + np.multiply(1 - y, np.log(1 - y_hat)))
-        # return .5 * np.sum(abs(y - y_hat)) ** 2
+        if y.shape[0] == x.shape[0]:
+            if y.shape[1] == 1:
+                return self._sum_of_squares(y, y_hat)
+            elif y.shape[1] > 1:
+                return self._cross_entropy(y, y_hat)
+        return None
+
+
+    def _cross_entropy(self, y, y_hat):
+        """A type of cost function used for classification greater than 2.
+
+        Returns:
+            float: Cost of current neural network.
+        """
+        return -1 * np.sum(np.multiply(y, self.safe_log(y_hat)) + np.multiply(1 - y, self.safe_log(1 - y_hat)))
+
+    @staticmethod
+    def safe_log(x, min_val=0.0000000001):
+        """A log function used to cap Matrix x when having low or nan elemnts
+
+        Returns:
+            ndarray: Natural log of x matrix
+        """
+        return np.log(x.clip(min=min_val))
+
+    @staticmethod
+    def _sum_of_squares(y, y_hat):
+        """A cost function used for regression or binary classification
+
+        Returns:
+            float: Cost of current neural network.
+        """
+        return np.sum(abs(y - y_hat)) ** 2
 
     def cost_function_prime(self, x, y):
+        """The derivative of the cost function
+
+        Uses the derived cost function to retrieve the gradient for each component
+
+        Returns:
+            list: ndarray; Returns a list of matricies where each matrix represent a specific component
+        """
         y_hat = self.forward(x);
 
         delta = []
@@ -244,14 +345,21 @@ class NeuralNetwork(object):
         derived.append(np.dot(self.threshold[len(self.threshold) - 1].T, delta[len(delta) - 1]))
 
         for i in range(2, len(self.inputSum)):
-            delta.append(np.array(np.dot(delta[len(delta) - 1], self.weight[len(self.weight) - i + 1].T)) * np.array(self.sigmoid_prime(self.inputSum[len(self.inputSum) - i])))
+            delta.append(np.array(np.dot(delta[len(delta) - 1], self.weight[len(self.weight) - i + 1].T)) *
+                         np.array(self.sigmoid_prime(self.inputSum[len(self.inputSum) - i])))
             derived.append(np.dot(self.threshold[len(self.threshold) - i].T, delta[len(delta) - 1]))
 
-        delta.append(np.array(np.dot(delta[len(delta) - 1], self.weight[1].T)) * np.array(self.sigmoid_prime(self.inputSum[0])))
+        delta.append(np.array(np.dot(delta[len(delta) - 1], self.weight[1].T)) *
+                     np.array(self.sigmoid_prime(self.inputSum[0])))
         derived.append(np.dot(x.T, delta[len(delta) - 1]))
         return derived
 
     def compute_gradients(self, x, y):
+        """Returns the gradients from each layer of computation
+
+        Returns:
+            ndarray: 1-D array of floats containing the gradient values
+        """
         # Obtains the derived costs over each derived weight set
         derived = self.cost_function_prime(x, y)
 
@@ -261,8 +369,15 @@ class NeuralNetwork(object):
             params = np.concatenate((params.ravel(), derived[len(derived) - 2 - i].ravel()), axis=1)
         return params
 
-    # Obtains the different weights in a 1-D matrix
     def get_params(self):
+        """Returns the weights in a 1-D array
+
+        Returns:
+            ndarray: 1-D array of floats containing the weights. Size of array is [1, n]
+                        where n = InputLayerSize * HiddenLayerSize[0] +
+                                    range(0,lastHiddenLayer - 1) for HiddenLayerSize[i-1] * HiddenLayerSize[i+1] +
+                                    HiddenLayerSize[lastHiddenLayer] * OutputLayerSize
+        """
         params = None
         for i in range(len(self.weight)):
             if params is None:
@@ -272,6 +387,14 @@ class NeuralNetwork(object):
         return params
 
     def set_params(self, params):
+        """Sets the weights of the Neural Network from a 1-D array
+
+        Params:
+            ndarray: 1-D array of floats that are the weights. Size of array is [1, n]
+                        where n = InputLayerSize * HiddenLayerSize[0] +
+                                    range(0,lastHiddenLayer - 1) for HiddenLayerSize[i-1] * HiddenLayerSize[i+1] +
+                                    HiddenLayerSize[lastHiddenLayer] * OutputLayerSize
+        """
         # Starting position of first set of weights
         hiddenStart = 0
         # Ending position of first set of weights
@@ -296,52 +419,73 @@ class NeuralNetwork(object):
 
 class Trainer(object):
     def __init__(self, N):
-        self.N = N
+        """Constructor
 
-    def set_params(self, params):
-        self.N.set_params(params)
+        Params:
+            NeuralNetwork: Sets neural network to be trained.
+        """
+        self.neural_net = N
 
     def cost_function_wrapper(self, params, x, y):
+        """Used to set the parameters of the Neural Network being trained
+
+        Returns:
+            float: Cost of the current Neural Network
+            ndarray: 1-D array of gradients
+        """
         # Sets the parameters
-        self.N.set_params(params)
+        self.neural_net.set_params(params)
         # Gets the cost
-        cost = self.N.cost_function(x, y)
+        cost = self.neural_net.cost_function(x, y)
         # Obtain the derived cost for each derived weights
-        grad = self.N.compute_gradients(x, y)
-        # Conversion
-        grad = np.array(grad)
-        grad.shape = (grad.shape[1],)
+        grad = self.neural_net.compute_gradients(x, y)
+        if isinstance(grad, np.matrix):
+            # Conversion from 2D matrix to 1D array
+            grad = np.array(grad)
+            grad.shape = (grad.shape[1],)
         return cost, grad
 
     def train(self, x, y):
+        """Trains the Neural Network to fit the training data
+
+        Uses the training method to minimize the cost function and set the weights of the Neural Network.
+
+        Params:
+            ndarray: Input value for the Neural Network
+            ndarray: Expected output value from the Neural Network
+        """
         # Parameters of weights from the Neural Network
-        params = self.N.get_params()
+        params = self.neural_net.get_params()
 
         # Options: maximum # of iterations and show information display after minimizing
-        options = {'maxiter': 200, 'disp': False}
-        results = optimize.minimize(self.cost_function_wrapper, params, jac=True, method='BFGS',
-                                    args=(x, y), options=options, callback=self.set_params)
-        self.N.set_params(results.x)
+        opt = {'maxiter': 200, 'disp': True}
+
+        # jac: Jacobian (Defines that cost_function_wrapper returns gradients)
+        # BFGS: Uses BFGS method of training and gradient descent
+        # callback: Return values acts as parameter for set_params
+        optimize.minimize(self.cost_function_wrapper, params, jac=True, method='BFGS',
+                          args=(x, y), options=opt, callback=self.neural_net.set_params)
+
 
 # SCRIPT
 NN = NeuralNetwork((35, 10, 10))
 train = Trainer(NN)
-print(NN.forward(x))
-print(NN.cost_function(x, y))
-train.train(x, y)
-while np.isnan(NN.cost_function(x, y)) or not (y * 10 == np.round(NN.forward(x) * 10)).all():
+print(NN.forward(X))
+print(NN.cost_function(X, Y))
+train.train(X, Y)
+while np.isnan(NN.cost_function(X, Y)) or not (Y * 10 == np.round(NN.forward(X) * 10)).all():
     NN = NeuralNetwork((35, 10, 10))
+    print(NN.cost_function(X, Y))
     train = Trainer(NN)
-    train.train(x, y)
-print(NN.forward(x))
-print(np.round(NN.forward(x) * 10))
-print(NN.cost_function(x, y))
-
-print(np.round(NN.forward(np.matrix([
-                            [0, 0, 0, 0, 0,
-                             0, 1, 1, 1, 0,
-                             0, 1, 0, 1, 0,
-                             0, 1, 1, 1, 0,
-                             0, 0, 0, 1, 0,
-                             0, 0, 0, 1, 0,
-                             0, 0, 0, 0, 0]])))*10)
+    train.train(X, Y)
+print(NN.forward(X))
+print(np.round(NN.forward(X) * 10))
+print(NN.cost_function(X, Y))
+print(NN.forward(np.matrix([[1, 1, 1, 1, 1,
+                             0, 0, 0, 0, 1,
+                             1, 1, 1, 1, 1,
+                             1, 0, 0, 0, 0,
+                             1, 1, 1, 1, 1,
+                             0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0]])))
+print("Done")
