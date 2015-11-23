@@ -19,14 +19,17 @@ def run():
 
     NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
     train = NeuralNetwork.Trainer(NN)
+    raw_input("Now printing an initial run on the 20 base inputs and their cost function.")
     print(NN.forward(X))
     print(NN.cost_function(X, Y))
+    raw_input("Training the network, then training on a monte carlo.")
     train.train(X, Y)
     while np.isnan(NN.cost_function(X, Y)) or not (Y * 10 == np.round(NN.forward(X) * 10)).all():
         NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
         #print(NN.cost_function(X, Y))
         train = NeuralNetwork.Trainer(NN)
         train.train(X, Y)
+    raw_input("Now printing the final match results.")
     print(np.round(NN.forward(X) * 10))
 
     while 1:
