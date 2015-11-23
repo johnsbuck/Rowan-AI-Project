@@ -1,4 +1,4 @@
-__author__ = 'Bill'
+__author__ = 'Bill Clark & John Bucknam'
 import NeuralNetwork
 import numpy as np
 import sys
