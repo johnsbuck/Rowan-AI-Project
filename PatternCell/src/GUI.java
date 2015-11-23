@@ -2,6 +2,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -13,26 +15,43 @@ import java.lang.Runtime;
 
 public class GUI
 {
+  private TestPane grid;
+  private JFrame frame;
+  private JButton setButton;
+
   public static void main(String[] args) throws IOException
   {
-    String s = null;
+    /*String s;
 
     Process p = Runtime.getRuntime().exec("python ../main.py");
     BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
     while((s = stdInput.readLine()) != null) {
       System.out.println(s);
     }
-    p.destroy();
+    p.destroy();*/
     new GUI();
   }
 
   public GUI()
   {
-    JFrame frame = new JFrame("Grid");
+    grid = new TestPane();
+
+    frame = new JFrame("Grid");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setLayout(new BorderLayout());
-    frame.add(new TestPane(), BorderLayout.CENTER);
-    frame.add(new Classifier(), BorderLayout.PAGE_END);
+
+    setButton = new JButton("What number is this?");
+    setButton.setPreferredSize(new Dimension(160, 40));
+    setButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        grid.toString();
+        grid.clear();
+      }
+    });
+
+    frame.add(grid, BorderLayout.CENTER);
+    frame.add(setButton, BorderLayout.PAGE_END);
     frame.pack();
     frame.setLocationRelativeTo(null);
     frame.setVisible(true);
@@ -40,12 +59,15 @@ public class GUI
 
   private class TestPane extends JPanel
   {
-    private int colCount = 5;
-    private int rowCount = 7;
+    private int colCount;
+    private int rowCount;
     private List<CellPane> cells = new ArrayList<>(colCount * rowCount);
 
     public TestPane()
     {
+      colCount = 5;
+      rowCount = 7;
+
       init();
     }
 
@@ -103,9 +125,45 @@ public class GUI
       }
     }
 
+    public void clear()
+    {
+      for(int i = 0; i < cells.size(); i++)
+      {
+        cells.get(i).clear();
+      }
+    }
+
     public List<CellPane> getCells()
     {
       return cells;
+    }
+
+    public List<Integer> getValues()
+    {
+      List<Integer> cellValues = new ArrayList(cells.size());
+
+      for(int i = 0; i < cells.size(); i++)
+      {
+        cellValues.add(cells.get(i).getValue());
+      }
+
+      return cellValues;
+    }
+
+    public String toString() {
+      String str = "";
+      List<Integer> cellValues = this.getValues();
+
+      for(int i = 0; i < cellValues.size(); i++)
+      {
+        str += cellValues.get(i);
+        if(i < cellValues.size() - 1)
+        {
+          str += " ";
+        }
+      }
+
+      return str;
     }
   }
 
@@ -118,44 +176,40 @@ public class GUI
       setPreferredSize(new Dimension(50, 50));
       defaultBackground = getBackground();
 
-      addMouseListener(new MouseAdapter() {
+      addMouseListener(new MouseAdapter()
+      {
         @Override
-        public void mouseClicked(MouseEvent e) {
-          if (getBackground().getBlue() == 0) {
+        public void mouseClicked(MouseEvent e)
+        {
+          if (getBackground().getBlue() == 0)
+          {
             setBackground(defaultBackground);
-          } else {
+          }
+          else
+          {
             setBackground(Color.BLACK);
           }
         }
       });
     }
 
-        public float getValue() {
+    public void clear()
+    {
+      setBackground(defaultBackground);
+    }
+
+    public int getValue()
+    {
       if(getBackground().getBlue() == 0) {
-        return 0.5f;
+        return 1;
       }
 
-      return -0.5f;
+      return 0;
     }
-  }
 
-  private class Classifier extends JPanel
-  {
-    JTextField textField;
-    JButton setButton;
-
-    public Classifier()
+    public String toString()
     {
-      setLayout(new FlowLayout());
-
-      textField = new JTextField();
-      textField.setPreferredSize(new Dimension(140, 20));
-      setButton = new JButton("Classify");
-      setButton.setPreferredSize(new Dimension(80, 20));
-
-      setLayout(new FlowLayout());
-      add(textField);
-      add(setButton);
+      return Integer.toString(this.getValue());
     }
   }
 }
