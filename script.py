@@ -37,7 +37,9 @@ def run():
         if ans.split(' ')[0] == 'forward':
                 print ans.split(' ')
                 input = readFile(ans.split(' ')[1])
-                print(NN.forward([input]))
+                output = NN.forward(input);
+                output = np.round(np.multiply(output, 10));
+                print(output)
         elif ans.split(' ')[0] == 'exit':
                 break
         else:
