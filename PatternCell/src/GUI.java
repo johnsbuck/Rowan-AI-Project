@@ -9,30 +9,32 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.lang.Runtime;
 
+/**
+ * Basic Cell Grid GUI used for printing out numeric boolean (0 & 1) values for each selected
+ * and non-selected cell.
+ */
 public class GUI
 {
-  private TestPane grid;
+  private GridPane grid;
   private JFrame frame;
   private JButton setButton;
 
-  public static void main(String[] args) throws IOException
+  /**
+   * Main function for running GUI
+   * @param args
+   */
+  public static void main(String[] args)
   {
-    /*String s;
-
-    Process p = Runtime.getRuntime().exec("python ../main.py");
-    BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-    while((s = stdInput.readLine()) != null) {
-      System.out.println(s);
-    }
-    p.destroy();*/
     new GUI();
   }
 
+  /**
+   * Default Constructor
+   */
   public GUI()
   {
-    grid = new TestPane();
+    grid = new GridPane();
 
     frame = new JFrame("Grid");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,13 +64,21 @@ public class GUI
     frame.setVisible(true);
   }
 
-  private class TestPane extends JPanel
+  /**
+   * Grid of 2 dimensional cells.
+   *
+   * Default size: 7 x 5
+   */
+  private class GridPane extends JPanel
   {
     private int colCount;
     private int rowCount;
     private List<CellPane> cells = new ArrayList<>(colCount * rowCount);
 
-    public TestPane()
+    /**
+     * Default Constructor
+     */
+    public GridPane()
     {
       colCount = 5;
       rowCount = 7;
@@ -76,7 +86,17 @@ public class GUI
       init();
     }
 
-    public TestPane(int row, int col)
+    /**
+     * Custom Grid Constructor
+     *
+     * Sets the number of rows and columns by the user.
+     * If number of rows <= 0 then will default to 8.
+     * If number of columns <= 0 then will default to 8.
+     *
+     * @param row
+     * @param col
+     */
+    public GridPane(int row, int col)
     {
       rowCount = row > 0 ? row : 8;
       colCount = col > 0 ? col : 8;
@@ -84,6 +104,9 @@ public class GUI
       init();
     }
 
+    /**
+     * Initializes the pane by adding cells
+     */
     private void init()
     {
       setLayout(new GridBagLayout());
@@ -130,6 +153,9 @@ public class GUI
       }
     }
 
+    /**
+     * Sets all cells to unselected.
+     */
     public void clear()
     {
       for(int i = 0; i < cells.size(); i++)
@@ -138,11 +164,22 @@ public class GUI
       }
     }
 
+    /**
+     * Returns a list of cells.
+     *
+     * @return
+     */
     public List<CellPane> getCells()
     {
       return cells;
     }
 
+    /**
+     * Returns a list of integers where 1s represents selected cells
+     * and 0 represents unselected cells.
+     *
+     * @return
+     */
     public List<Integer> getValues()
     {
       List<Integer> cellValues = new ArrayList(cells.size());
@@ -155,6 +192,11 @@ public class GUI
       return cellValues;
     }
 
+    /**
+     * Returns a string set of cell values.
+     *
+     * @return
+     */
     public String toString() {
       String str = "";
       List<Integer> cellValues = this.getValues();
@@ -172,10 +214,17 @@ public class GUI
     }
   }
 
+  /**
+   * Individual cell from grid.
+   * They may be selected or unselected by clicking and returns 1 when selected and 0 when not.
+   */
   public class CellPane extends JPanel
   {
     private Color defaultBackground;
 
+    /**
+     * Default Constructor
+     */
     public CellPane()
     {
       setPreferredSize(new Dimension(50, 50));
@@ -198,11 +247,19 @@ public class GUI
       });
     }
 
+    /**
+     * Sets cell to unselected
+     */
     public void clear()
     {
       setBackground(defaultBackground);
     }
 
+    /**
+     * Returns 1 when cell is selected and 0 when it is not selected.
+     *
+     * @return
+     */
     public int getValue()
     {
       if(getBackground().getBlue() == 0) {
@@ -212,6 +269,11 @@ public class GUI
       return 0;
     }
 
+    /**
+     * Returns cell's value as a string.
+     *
+     * @return
+     */
     public String toString()
     {
       return Integer.toString(this.getValue());
