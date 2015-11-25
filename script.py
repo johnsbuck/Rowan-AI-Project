@@ -2,15 +2,18 @@ __author__ = 'Bill Clark & John Bucknam'
 import NeuralNetwork
 import numpy as np
 import sys
+import os.path
 
 #Reads in file as an array of arrays.
 def readFile(name):
     X = []
-    f = open(name,'r')
-    for line in f:
-        X.append([int(y) for y in line.split(' ')])
-    f.close()
-    return np.array(X)
+    if os.path.isfile(name):
+        f = open(name,'r')
+        for line in f:
+            X.append([int(y) for y in line.split(' ')])
+        f.close()
+        return np.array(X)
+    return False
 
 
 def run():
@@ -19,7 +22,7 @@ def run():
 
     NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
     train = NeuralNetwork.Trainer(NN)
-    raw_input("Now printing an initial run on the 20 base inputs and their cost function.")
+    raw_input("Now printing an initial run on the " + str(X.shape[0]) + " base inputs and their cost function.")
     print(NN.forward(X))
     print(NN.cost_function(X, Y))
     raw_input("Training the network, then training on a monte carlo.")
@@ -34,7 +37,7 @@ def run():
 
     while 1:
         ans = raw_input("input a command, forward on file, exit: ")
-        if ans.split(' ')[0] == 'forward':
+        if ans.split(' ')[0] == 'forward' and len(ans.split(' ')) > 1:
                 print ans.split(' ')
                 input = readFile(ans.split(' ')[1])
                 output = NN.forward(input);
