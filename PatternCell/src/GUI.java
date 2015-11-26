@@ -47,7 +47,7 @@ public class GUI
       public void actionPerformed(ActionEvent e)
       {
         try {
-          PrintWriter out = new PrintWriter("../test");
+          PrintWriter out = new PrintWriter("../../test");
           out.println(grid.toString());
           out.close();
         } catch (FileNotFoundException er) {
