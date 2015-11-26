@@ -191,8 +191,14 @@ class NeuralNetwork(object):
 
         # Unravels the derived cost for each set of weights and concatenates them all together
         params = derived[len(derived) - 1].ravel();
-        for i in range(len(derived) - 1):
-            params = np.concatenate((params.ravel(), derived[len(derived) - 2 - i].ravel()), axis=1)
+
+        # Concatenates the gradients
+        if isinstance(params, np.matrix):
+            for i in range(len(derived) - 1):
+                params = np.concatenate((params.ravel(), derived[len(derived) - 2 - i].ravel()), axis=1)
+        else:
+            for i in range(len(derived) - 1):
+                params = np.concatenate((params.ravel(), derived[len(derived) - 2 - i].ravel()))
         return params
 
     def get_params(self):
