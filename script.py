@@ -15,28 +15,41 @@ def readFile(name):
         return np.array(X)
     return False
 
-
+#In place of a main, as python lacks one. Call run to read in the training data and train,
+#As well as run a monte carlo to find a satisfactory network. Then it will sit in a loop
+#waiting for input commands.
 def run():
+    #reads in the test data files.
     X = readFile(sys.argv[1])
     Y = readFile(sys.argv[2])
 
+    #Creates a trainer and network, created as a 35 input to 10 hidden to 10 output.
     NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
     train = NeuralNetwork.Trainer(NN)
+
+    # As the print states, runs a forward operation on the network with it's randomly generated weights.
     raw_input("Now printing an initial run on the " + str(X.shape[0]) + " base inputs and their cost function.")
     print(NN.forward(X))
     print(NN.cost_function(X, Y))
+
+    #Trains the network using the trainer and test data.
     raw_input("Training the network, then training on a monte carlo.")
-    train.train(X, Y)
+
+    #This is our monte carlo. Continually trains networks until one statisfies our conditions.
     while np.isnan(NN.cost_function(X, Y)) or not (Y * 10 == np.round(NN.forward(X) * 10)).all():
         NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
-        #print(NN.cost_function(X, Y))
         train = NeuralNetwork.Trainer(NN)
         train.train(X, Y)
+
+    #Print the results of the training and monte carlo.
     raw_input("Now printing the final match results.")
     print(np.round(NN.forward(X) * 10))
 
+    #Input control loop.
     while 1:
         ans = raw_input("input a command, forward on file, exit: ")
+
+        # When a user inputs forward and a file, read in the file and run forward using it.
         if ans.split(' ')[0] == 'forward' and len(ans.split(' ')) > 1:
                 print ans.split(' ')
                 input = readFile(ans.split(' ')[1])
@@ -44,6 +57,7 @@ def run():
                 output = np.round(np.multiply(output, 10));
                 print(output)
 
+                #Additional checker tool, allows for a forwarded file to be added to test data.
                 valid = raw_input("Is this the expected output? (y/n): ")
                 if valid == "n":
                     actualOutput = raw_input("What is the correct output (0-9): ")
@@ -75,9 +89,13 @@ def run():
                             print("Invalid input")
                     except ValueError:
                         print("Invalid input.")
+        # Exit.
         elif ans.split(' ')[0] == 'exit':
                 break
+        # Completely invalid input.
         else:
             print "Hashtag Nope Nope Nope."
 
-run()
+#If this script is being run, as opposed to imported, run the run function.
+if __name__ == '__main__':
+    run()
