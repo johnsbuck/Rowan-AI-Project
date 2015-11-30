@@ -43,6 +43,38 @@ def run():
                 output = NN.forward(input);
                 output = np.round(np.multiply(output, 10));
                 print(output)
+
+                valid = raw_input("Is this the expected output? (y/n): ")
+                if valid == "n":
+                    actualOutput = raw_input("What is the correct output (0-9): ")
+                    try:
+                        actualOutput = int(actualOutput)
+                        if actualOutput >= 0 and actualOutput < 10:
+                            with open(sys.argv[1], "a") as trainInput:
+                                with open(ans.split(' ')[1], "r") as newInput:
+                                    trainInput.write(newInput.read())
+                                    trainInput.close()
+                                    newInput.close()
+                            with open(sys.argv[2], "a") as trainOutput:
+                                newData = ""
+                                zeroes = 9 - actualOutput
+                                while actualOutput > 0:
+                                    newData += "0 "
+                                    actualOutput = actualOutput - 1
+                                newData += "1 "
+                                while zeroes > 0:
+                                    if zeroes == 1:
+                                        newData += "0\n"
+                                    else:
+                                        newData += "0 "
+                                    zeroes = zeroes - 1
+                                trainOutput.write(newData)
+                                trainOutput.close()
+                            print("Is added to training data. Will not be implemented until restart.")
+                        else:
+                            print("Invalid input")
+                    except ValueError:
+                        print("Invalid input.")
         elif ans.split(' ')[0] == 'exit':
                 break
         else:
