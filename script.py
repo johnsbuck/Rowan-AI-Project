@@ -75,13 +75,17 @@ def run():
                                 while actualOutput > 0:
                                     newData += "0 "
                                     actualOutput = actualOutput - 1
-                                newData += "1 "
-                                while zeroes > 0:
-                                    if zeroes == 1:
-                                        newData += "0\n"
-                                    else:
-                                        newData += "0 "
-                                    zeroes = zeroes - 1
+                                newData += "1"
+                                if zeroes == 0:
+                                    newData += "\n"
+                                else:
+                                    newData += " "
+                                    while zeroes > 0:
+                                        if zeroes == 1:
+                                            newData += "0\n"
+                                        else:
+                                            newData += "0 "
+                                        zeroes = zeroes - 1
                                 trainOutput.write(newData)
                                 trainOutput.close()
                             print("Is added to training data. Will not be implemented until restart.")
