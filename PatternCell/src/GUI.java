@@ -19,6 +19,7 @@ public class GUI
   private GridPane grid;
   private JFrame frame;
   private JButton setButton;
+  private JTextField fileName;
 
   /**
    * Main function for running GUI
@@ -47,7 +48,7 @@ public class GUI
       public void actionPerformed(ActionEvent e)
       {
         try {
-          PrintWriter out = new PrintWriter("../../test");
+          PrintWriter out = new PrintWriter(fileName.getText());
           out.println(grid.toString());
           out.close();
         } catch (FileNotFoundException er) {
@@ -57,8 +58,11 @@ public class GUI
       }
     });
 
+    fileName = new JTextField("File name");
+
     frame.add(grid, BorderLayout.CENTER);
     frame.add(setButton, BorderLayout.PAGE_END);
+    frame.add(fileName, BorderLayout.PAGE_START);
     frame.pack();
     frame.setLocationRelativeTo(null);
     frame.setVisible(true);
