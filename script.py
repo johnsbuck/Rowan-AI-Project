@@ -15,6 +15,14 @@ def readFile(name):
         return np.array(X)
     return False
 
+def readWeights(name):
+    if os.path.isfile(name):
+        f = open(name, 'r')
+        prevWeights = np.fromstring(f.readline(), dtype=float, sep=" ")
+        f.close()
+        return prevWeights
+    return False
+
 #In place of a main, as python lacks one. Call run to read in the training data and train,
 #As well as run a monte carlo to find a satisfactory network. Then it will sit in a loop
 #waiting for input commands.
@@ -22,9 +30,12 @@ def run():
     #reads in the test data files.
     X = readFile(sys.argv[1])
     Y = readFile(sys.argv[2])
+    weights = readWeights(sys.argv[3])
 
     #Creates a trainer and network, created as a 35 input to 10 hidden to 10 output.
     NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
+    NN.set_params(weights)
+
     train = NeuralNetwork.Trainer(NN)
 
     # As the print states, runs a forward operation on the network with it's randomly generated weights.
@@ -34,9 +45,10 @@ def run():
 
     #Trains the network using the trainer and test data.
     raw_input("Training the network, then training on a monte carlo.")
+    train.train(X, Y)
 
     #This is our monte carlo. Continually trains networks until one statisfies our conditions.
-    while np.isnan(NN.cost_function(X, Y)) or not (Y * 10 == np.round(NN.forward(X) * 10)).all():
+    while np.isnan(NN.cost_function(X, Y)) or not (Y == np.round(NN.forward(X))).all():
         NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
         train = NeuralNetwork.Trainer(NN)
         train.train(X, Y)
@@ -47,7 +59,7 @@ def run():
 
     #Input control loop.
     while 1:
-        ans = raw_input("input a command, forward on file, exit: ")
+        ans = raw_input("input a command: forward <file>, save <file>, or exit: ")
 
         # When a user inputs forward and a file, read in the file and run forward using it.
         if ans.split(' ')[0] == 'forward' and len(ans.split(' ')) > 1:
@@ -93,6 +105,13 @@ def run():
                             print("Invalid input")
                     except ValueError:
                         print("Invalid input.")
+        elif ans.split(' ')[0] == 'save' and len(ans.split(' ')) > 1:
+            print ans.split(' ')
+            with open(ans.split(' ')[1], "w") as weights:
+                print NN.get_params()
+                weights.write(str(NN.get_params()).replace("[", "").replace("]","")
+                              .replace("\n", "").replace("   "," ").replace("  ", " "))
+                weights.close()
         # Exit.
         elif ans.split(' ')[0] == 'exit':
                 break

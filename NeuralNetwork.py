@@ -213,7 +213,7 @@ class NeuralNetwork(object):
         params = None
         for i in range(len(self.weight)):
             if params is None:
-                params = np.concatenate(self.weight[i].ravel())
+                params = self.weight[i].ravel()
             else:
                 params = np.concatenate((params.ravel(), self.weight[i].ravel()), axis=1)
         return params
