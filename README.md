@@ -22,7 +22,7 @@ There are 3 sections in the GUI:
   1. Lastly, our confirmation button has the grid stored as a series of 0s and 1s separated by spaces in the file location specified. It also clears the grid for further use.
 
 ## Python Script Instructions
-Our script can be ran by running in a command line `python script.py *InputFile* *OutputFile* *Weights*`
+Our script can be ran by running in a command line `python script.py InputFile OutputFile Weights`
 
 1. InputFile
   1. The InputFile is our list of training inputs that are each 35 characters long (each character separated by spaces). It matches the format of our GUI output having '0 1 0 0 1 ...' for each output.
