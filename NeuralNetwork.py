@@ -122,9 +122,9 @@ class NeuralNetwork(object):
         """
         y_hat = self.forward(x)
         if y.shape[0] == x.shape[0]:
-            if y.shape[1] == 1:
+            if y.shape[0] == 1:
                 return self._sum_of_squares(y, y_hat)
-            elif y.shape[1] > 1:
+            elif y.shape[0] > 1:
                 return self._cross_entropy(y, y_hat)
         return None
 
@@ -135,7 +135,7 @@ class NeuralNetwork(object):
         Returns:
             float: Cost of current neural network.
         """
-        return -1 * np.sum(np.multiply(y, self.safe_log(y_hat)) + np.multiply(1 - y, self.safe_log(1 - y_hat)))
+        return -1 * np.sum(np.multiply(y, self.safe_log(y_hat)) + np.multiply(1 - y, self.safe_log(1 - y_hat))) / y.shape[0]
 
     @staticmethod
     def safe_log(x, min_val=0.0000000001):
@@ -153,7 +153,7 @@ class NeuralNetwork(object):
         Returns:
             float: Cost of current neural network.
         """
-        return np.sum(abs(y - y_hat)) ** 2
+        return np.sum(np.power(abs(y - y_hat), 2)) / y.shape[0]
 
     def cost_function_prime(self, x, y):
         """The derivative of the cost function
@@ -215,7 +215,7 @@ class NeuralNetwork(object):
             if params is None:
                 params = self.weight[i].ravel()
             else:
-                params = np.concatenate((params.ravel(), self.weight[i].ravel()), axis=1)
+                params = np.concatenate((params.ravel(), self.weight[i].ravel(), ))
         return params
 
     def set_params(self, params):
