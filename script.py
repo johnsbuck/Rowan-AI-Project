@@ -1,4 +1,5 @@
-__author__ = 'Bill Clark & John Bucknam'
+#!/usr/bin/env python
+
 import NeuralNetwork
 import numpy as np
 import sys
@@ -27,14 +28,17 @@ def readWeights(name):
 #As well as run a monte carlo to find a satisfactory network. Then it will sit in a loop
 #waiting for input commands.
 def run():
+    MAX_TRAIN_CYCLES = 350
     #reads in the test data files.
     X = readFile(sys.argv[1])
     Y = readFile(sys.argv[2])
-    weights = readWeights(sys.argv[3])
+    if len(sys.argv) >= 4:
+        weights = readWeights(sys.argv[3])
 
     #Creates a trainer and network, created as a 35 input to 10 hidden to 10 output.
     NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
-    NN.set_params(weights)
+    if len(sys.argv) >= 4:
+        NN.set_params(weights)
 
     train = NeuralNetwork.Trainer(NN)
 
@@ -44,18 +48,29 @@ def run():
     print(NN.cost_function(X, Y))
 
     #Trains the network using the trainer and test data.
-    raw_input("Training the network, then training on a monte carlo.")
+    raw_input("Training the network, then training on a monte carlo.\n# of Cycles: " + str(MAX_TRAIN_CYCLES))
     train.train(X, Y)
 
     #This is our monte carlo. Continually trains networks until one statisfies our conditions.
-    while np.isnan(NN.cost_function(X, Y)) or not (Y == np.round(NN.forward(X))).all():
+    count = 0
+    bestNN = NeuralNetwork.NeuralNetwork((35, 10, 10))
+    bestNN.set_params(NN.get_params())
+    while np.isnan(NN.cost_function(X, Y)) or count < MAX_TRAIN_CYCLES:
         NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
         train = NeuralNetwork.Trainer(NN)
         train.train(X, Y)
+        if bestNN.cost_function(X, Y) > NN.cost_function(X, Y):
+            bestNN = NeuralNetwork.NeuralNetwork((35, 10, 10))
+            bestNN.set_params(NN.get_params())
+            print("New cost: " + str(bestNN.cost_function(X, Y)))
+        count += 1
+        print("Current cycle: " + str(count))
 
+    NN.set_params(bestNN.get_params())
     #Print the results of the training and monte carlo.
     raw_input("Now printing the final match results.")
     print(np.round(NN.forward(X) * 10))
+    print("Cost function: " + str(NN.cost_function(X, Y)))
 
     #Input control loop.
     while 1:
@@ -121,4 +136,9 @@ def run():
 
 #If this script is being run, as opposed to imported, run the run function.
 if __name__ == '__main__':
-    run()
+    if len(sys.argv) >= 2:
+        run()
+    else:
+        print "Invalid number of inputs. (Requires expected input & expected output files)"
+
+__author__ = 'Bill Clark & John Bucknam'

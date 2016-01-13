@@ -214,8 +214,10 @@ class NeuralNetwork(object):
         for i in range(len(self.weight)):
             if params is None:
                 params = self.weight[i].ravel()
+            elif len(params.shape) == 1:
+                params = np.concatenate((params.ravel(), self.weight[i].ravel()))
             else:
-                params = np.concatenate((params.ravel(), self.weight[i].ravel(), ))
+                params = np.concatenate((params.ravel(), self.weight[i].ravel()), axis=1)
         return params
 
     def set_params(self, params):
@@ -290,7 +292,7 @@ class Trainer(object):
         params = self.neural_net.get_params()
 
         # Options: maximum # of iterations and show information display after minimizing
-        opt = {'maxiter': 200, 'disp': True}
+        opt = {'maxiter': 200, 'disp': False}
 
         # jac: Jacobian (Defines that cost_function_wrapper returns gradients)
         # BFGS: Uses BFGS method of training and gradient descent
