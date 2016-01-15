@@ -55,7 +55,7 @@ def run():
     layerNodes = layerNodes + (10,)
     print layerNodes
 
-    NN = NeuralNetwork.NeuralNetwork((35, 20, 15, 10))
+    NN = NeuralNetwork.NeuralNetwork(layerNodes)
     if len(sys.argv) >= 4:
         NN.set_params(weights)
 
@@ -80,15 +80,15 @@ def run():
             train = NeuralNetwork.Trainer(NN)
             train.train(X, Y)
             if count == 0:
-                bestNN = NeuralNetwork.NeuralNetwork((35, 20, 15, 10))
+                bestNN = NeuralNetwork.NeuralNetwork(layerNodes)
                 bestNN.set_params(NN.get_params())
                 print("Cost: " + str(bestNN.cost_function(X, Y)))
             elif bestNN.cost_function(X, Y) > NN.cost_function(X, Y):
-                bestNN = NeuralNetwork.NeuralNetwork((35, 20, 15, 10))
+                bestNN = NeuralNetwork.NeuralNetwork(layerNodes)
                 bestNN.set_params(NN.get_params())
                 print("New cost: " + str(bestNN.cost_function(X, Y)))
             count += 1
-            NN = NeuralNetwork.NeuralNetwork((35, 20, 15, 10))
+            NN = NeuralNetwork.NeuralNetwork(layerNodes)
             print("Current cycle: " + str(count))
 
         NN.set_params(bestNN.get_params())
