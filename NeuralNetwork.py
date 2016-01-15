@@ -7,9 +7,19 @@ __author__ = 'John Bucknam & Bill Clark'
 class NeuralNetwork(object):
     """A feedforward neural network that capable of regression or classification.
 
-    Requires Numpy to run and takes in ndmatrix inputs.
+    Requires Numpy to run and takes in ndarray inputs.
 
     """
+    # CONSTANTS
+    SUM_OF_SQUARES_TYPE = "Sum of Squares"
+    CROSS_ENTROPY_TYPE = "Cross Entropy"
+
+    #Variables
+    inputLayerSize = None
+    outputLayerSize = None
+    hiddenLayerSizes = None
+    weight = None
+
     def __init__(self, layer_sizes):
         """Constructor
 
@@ -28,17 +38,17 @@ class NeuralNetwork(object):
         # If there are hidden layers
         if len(self.hiddenLayerSizes) != 0:
             # Add random weights from input layer to hidden layer 0
-            self.weight.append(np.matrix(np.random.randn(self.inputLayerSize, self.hiddenLayerSizes[0])))
+            self.weight.append(np.random.randn(self.inputLayerSize, self.hiddenLayerSizes[0]))
             # For each hidden layer
             for i in range(len(self.hiddenLayerSizes) - 1):
                 # Add random weights between each hidden layer
-                self.weight.append(np.matrix(np.random.randn(self.hiddenLayerSizes[i], self.hiddenLayerSizes[i + 1])))
+                self.weight.append(np.random.randn(self.hiddenLayerSizes[i], self.hiddenLayerSizes[i + 1]))
             # Add random weights between the last hidden layer and output layer
             self.weight.append(
-                np.matrix(np.random.randn(self.hiddenLayerSizes[len(self.hiddenLayerSizes) - 1], self.outputLayerSize)))
+                np.random.randn(self.hiddenLayerSizes[len(self.hiddenLayerSizes) - 1], self.outputLayerSize))
         else:
             # Add random weights between the input layer and output layer
-            self.weight.append(np.matrix(np.random.randn(self.inputLayerSize, self.outputLayerSize)))
+            self.weight.append(np.random.randn(self.inputLayerSize, self.outputLayerSize))
 
     def forward(self, input_matrix):
         """Feeds the input forward through the neural network
@@ -122,12 +132,20 @@ class NeuralNetwork(object):
         """
         y_hat = self.forward(x)
         if y.shape[0] == x.shape[0]:
-            if y.shape[0] == 1:
+            type = self.cost_function_type(x, y)
+            if type == self.SUM_OF_SQUARES_TYPE:
                 return self._sum_of_squares(y, y_hat)
-            elif y.shape[0] > 1:
+            elif type == self.CROSS_ENTROPY_TYPE:
                 return self._cross_entropy(y, y_hat)
         return None
 
+    def cost_function_type(self, x, y):
+        if y.shape[1] == 1:
+            return self.SUM_OF_SQUARES_TYPE
+        elif y.shape[1] > 1:
+            return self.CROSS_ENTROPY_TYPE
+        else:
+            return None
 
     def _cross_entropy(self, y, y_hat):
         """A type of cost function used for classification greater than 2.
@@ -139,7 +157,7 @@ class NeuralNetwork(object):
 
     @staticmethod
     def safe_log(x, min_val=0.0000000001):
-        """A log function used to cap Matrix x when having low or nan elemnts
+        """A log function used to cap ndarray x when having low or nan elements
 
         Returns:
             ndarray: Natural log of x matrix
@@ -153,7 +171,7 @@ class NeuralNetwork(object):
         Returns:
             float: Cost of current neural network.
         """
-        return np.sum(np.power(abs(y - y_hat), 2)) / y.shape[0]
+        return np.sum(np.power(y - y_hat, 2)) / y.shape[0]
 
     def cost_function_prime(self, x, y):
         """The derivative of the cost function
@@ -193,12 +211,8 @@ class NeuralNetwork(object):
         params = derived[len(derived) - 1].ravel();
 
         # Concatenates the gradients
-        if isinstance(params, np.matrix):
-            for i in range(len(derived) - 1):
-                params = np.concatenate((params.ravel(), derived[len(derived) - 2 - i].ravel()), axis=1)
-        else:
-            for i in range(len(derived) - 1):
-                params = np.concatenate((params.ravel(), derived[len(derived) - 2 - i].ravel()))
+        for i in range(len(derived) - 1):
+            params = np.concatenate((params.ravel(), derived[len(derived) - 2 - i].ravel()))
         return params
 
     def get_params(self):
@@ -275,10 +289,7 @@ class Trainer(object):
         cost = self.neural_net.cost_function(x, y)
         # Obtain the derived cost for each derived weights
         grad = self.neural_net.compute_gradients(x, y)
-        if isinstance(grad, np.matrix):
-            # Conversion from 2D matrix to 1D array
-            grad = np.array(grad)
-            grad.shape = (grad.shape[1],)
+
         return cost, grad
 
     def train(self, x, y):
@@ -301,28 +312,3 @@ class Trainer(object):
         # callback: Return values acts as parameter for set_params
         optimize.minimize(self.cost_function_wrapper, params, jac=True, method='BFGS',
                           args=(x, y), options=opt, callback=self.neural_net.set_params)
-
-
-# SCRIPT
-if __name__ == '__main__':
-    NN = NeuralNetwork((35, 10, 10))
-    train = Trainer(NN)
-    print(NN.forward(X))
-    print(NN.cost_function(X, Y))
-    train.train(X, Y)
-    while np.isnan(NN.cost_function(X, Y)) or not (Y * 10 == np.round(NN.forward(X) * 10)).all():
-        NN = NeuralNetwork((35, 10, 10))
-        print(NN.cost_function(X, Y))
-        train = Trainer(NN)
-        train.train(X, Y)
-    # print(NN.forward(X))
-    print(np.round(NN.forward(X) * 10))
-    print(NN.cost_function(X, Y))
-    print(NN.forward(np.matrix([[1, 1, 1, 1, 1,
-                                 0, 0, 0, 0, 1,
-                                 1, 1, 1, 1, 1,
-                                 1, 0, 0, 0, 0,
-                                 1, 1, 1, 1, 1,
-                                 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0]])))
-    print("Done")
