@@ -33,9 +33,13 @@ def run():
     Y = readFile(sys.argv[2])
     if len(sys.argv) >= 4:
         weights = readWeights(sys.argv[3])
+    if not X.shape[0] == Y.shape[0]:
+        print "Need equal number of Inputs and Outputs"
+        return
 
     #Creates a trainer and network, created as a 35 input to 10 hidden to 10 output.
-    print "This neural network will take in 35 inputs and output 10 floats (rounded)."
+    print("This neural network will take in " + str(X.shape[1]) +
+     " inputs and will output " + str(Y.shape[1]) + " floats.")
 
     numHiddenLayers = ""
     while not numHiddenLayers.isdigit():
