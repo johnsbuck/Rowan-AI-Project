@@ -5,6 +5,8 @@ import numpy as np
 import sys
 import os.path
 
+np.set_printoptions(threshold='nan')
+
 #Reads in file as an array of arrays.
 def readFile(name):
     X = []
@@ -151,8 +153,13 @@ def run():
                         print("Invalid input.")
         elif ans.split(' ')[0] == 'save' and len(ans.split(' ')) > 1:
             print ans.split(' ')
-            with open(ans.split(' ')[1], "w") as weights:
-                print NN.get_params()
+
+            filename = ans.split(' ')[1]
+            if filename == "default":
+                filename = "Weights-" + str(layerNodes)
+
+            with open(filename, "w") as weights:
+                print "Saving weights in " + filename
                 weights.write(str(NN.get_params()).replace("[", "").replace("]","")
                               .replace("\n", "").replace("   "," ").replace("  ", " "))
                 weights.close()
