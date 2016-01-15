@@ -28,7 +28,6 @@ def readWeights(name):
 #As well as run a monte carlo to find a satisfactory network. Then it will sit in a loop
 #waiting for input commands.
 def run():
-    MAX_TRAIN_CYCLES = 350
     #reads in the test data files.
     X = readFile(sys.argv[1])
     Y = readFile(sys.argv[2])
@@ -36,7 +35,27 @@ def run():
         weights = readWeights(sys.argv[3])
 
     #Creates a trainer and network, created as a 35 input to 10 hidden to 10 output.
-    NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
+    print "This neural network will take in 35 inputs and output 10 floats (rounded)."
+
+    numHiddenLayers = ""
+    while not numHiddenLayers.isdigit():
+        numHiddenLayers = raw_input("How many hidden layers do you want: ")
+    numHiddenLayers = int(numHiddenLayers)
+
+    layerNodes = (35,)
+
+    print("Enter the number of nodes for each hidden layer")
+    for i in range(1, numHiddenLayers+1):
+        hiddenLayerNodes = ""
+        while not hiddenLayerNodes.isdigit():
+            hiddenLayerNodes = raw_input("Hidden Layer " + str(i) + ": ")
+        layerNodes = layerNodes + (int(hiddenLayerNodes),)
+        print layerNodes
+
+    layerNodes = layerNodes + (10,)
+    print layerNodes
+
+    NN = NeuralNetwork.NeuralNetwork((35, 20, 15, 10))
     if len(sys.argv) >= 4:
         NN.set_params(weights)
 
@@ -48,25 +67,31 @@ def run():
     print(NN.cost_function(X, Y))
 
     #Trains the network using the trainer and test data.
-    raw_input("Training the network, then training on a monte carlo.\n# of Cycles: " + str(MAX_TRAIN_CYCLES))
-    train.train(X, Y)
+    max_count = ""
+    while not max_count.isdigit():
+        max_count = raw_input("Training the network, then training on a monte carlo.\n# of Cycles: ")
+    max_count = int(max_count)
 
     #This is our monte carlo. Continually trains networks until one statisfies our conditions.
-    count = 0
-    bestNN = NeuralNetwork.NeuralNetwork((35, 10, 10))
-    bestNN.set_params(NN.get_params())
-    while np.isnan(NN.cost_function(X, Y)) or count < MAX_TRAIN_CYCLES:
-        NN = NeuralNetwork.NeuralNetwork((35, 10, 10))
-        train = NeuralNetwork.Trainer(NN)
-        train.train(X, Y)
-        if bestNN.cost_function(X, Y) > NN.cost_function(X, Y):
-            bestNN = NeuralNetwork.NeuralNetwork((35, 10, 10))
-            bestNN.set_params(NN.get_params())
-            print("New cost: " + str(bestNN.cost_function(X, Y)))
-        count += 1
-        print("Current cycle: " + str(count))
+    if max_count > 0:
+        count = 0
 
-    NN.set_params(bestNN.get_params())
+        while np.isnan(NN.cost_function(X, Y)) or count < max_count:
+            train = NeuralNetwork.Trainer(NN)
+            train.train(X, Y)
+            if count == 0:
+                bestNN = NeuralNetwork.NeuralNetwork((35, 20, 15, 10))
+                bestNN.set_params(NN.get_params())
+                print("Cost: " + str(bestNN.cost_function(X, Y)))
+            elif bestNN.cost_function(X, Y) > NN.cost_function(X, Y):
+                bestNN = NeuralNetwork.NeuralNetwork((35, 20, 15, 10))
+                bestNN.set_params(NN.get_params())
+                print("New cost: " + str(bestNN.cost_function(X, Y)))
+            count += 1
+            NN = NeuralNetwork.NeuralNetwork((35, 20, 15, 10))
+            print("Current cycle: " + str(count))
+
+        NN.set_params(bestNN.get_params())
     #Print the results of the training and monte carlo.
     raw_input("Now printing the final match results.")
     print(np.round(NN.forward(X) * 10))
@@ -132,7 +157,7 @@ def run():
                 break
         # Completely invalid input.
         else:
-            print "Hashtag Nope Nope Nope."
+            print "#NopeNopeNope."
 
 #If this script is being run, as opposed to imported, run the run function.
 if __name__ == '__main__':

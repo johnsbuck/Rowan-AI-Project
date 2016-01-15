@@ -218,6 +218,8 @@ class NeuralNetwork(object):
                 params = np.concatenate((params.ravel(), self.weight[i].ravel()))
             else:
                 params = np.concatenate((params.ravel(), self.weight[i].ravel()), axis=1)
+        if len(params.shape) == 2 and params.shape[0] == 1:
+            return params.T
         return params
 
     def set_params(self, params):
